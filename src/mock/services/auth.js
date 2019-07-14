@@ -2,7 +2,7 @@ import Mock from 'mockjs2'
 import { builder, getBody } from '../util'
 
 const username = ['admin', 'user', 'super']
-const password = ['21232f297a57a5a743894a0e4a801fc3', '8914de686ab28dc22f30d3d8e107ff6c'] // admin, ant.design
+const password = ['e10adc3949ba59abbe56e057f20f883e', '21232F297A57A5A743894A0E4A801FC3'] // 123456, admin
 
 const login = (options) => {
   const body = getBody(options)

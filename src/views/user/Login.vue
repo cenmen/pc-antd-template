@@ -1,9 +1,7 @@
 <template>
   <div class="main">
     <a-form
-      id="formLogin"
       class="user-layout-login"
-      ref="formLogin"
       :form="form"
       @submit="handleSubmit"
     >
@@ -11,10 +9,14 @@
         <a-input
           size="large"
           type="text"
-          placeholder="账户: admin"
+          placeholder="请输入用户名/邮箱/手机号"
           v-decorator="[
             'username',
-            {rules: [{ required: true, message: '请输入帐户名' }], validateTrigger: 'change'}
+            {
+              rules: [
+                { required: true, message: '请输入帐户名' }
+              ]
+            }
           ]"
         >
           <a-icon slot="prefix" type="user" :style="{ color: 'rgba(0,0,0,.25)' }"/>
@@ -26,10 +28,14 @@
           size="large"
           type="password"
           autocomplete="false"
-          placeholder="密码: admin or ant.design"
+          placeholder="请输入密码"
           v-decorator="[
             'password',
-            {rules: [{ required: true, message: '请输入密码' }], validateTrigger: 'blur'}
+            {
+              rules: [
+                { required: true, message: '请输入密码' }
+              ]
+            }
           ]"
         >
           <a-icon slot="prefix" type="lock" :style="{ color: 'rgba(0,0,0,.25)' }"/>
@@ -60,8 +66,8 @@
 <script>
 import md5 from 'md5'
 import { mapActions } from 'vuex'
+import store from '@/store'
 import { timeFix } from '@/utils/util'
-import { getSmsCaptcha, get2step } from '@/api/login'
 
 export default {
   data () {
@@ -71,12 +77,9 @@ export default {
       form: this.$form.createForm(this),
       state: {
         time: 60,
-        loginBtn: false,
+        loginBtn: false
       }
     }
-  },
-  created () {
-    
   },
   methods: {
     ...mapActions(['Login', 'Logout']),
@@ -84,29 +87,29 @@ export default {
       e.preventDefault()
 
       this.state.loginBtn = true
-
+      const _this = this
       this.form.validateFields({ force: true }, (err, values) => {
         if (!err) {
-          console.log('login form', values)
           const loginParams = {
             username: values.username,
-            password: md5(password)
+            password: md5(values.password)
           }
-          Login(loginParams)
+          console.log('login form', store.state.user.name)
+          this.Login(loginParams)
             .then((res) => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))
             .finally(() => {
-              state.loginBtn = false
+              _this.state.loginBtn = false
             })
         } else {
           setTimeout(() => {
-            state.loginBtn = false
+            _this.state.loginBtn = false
           }, 600)
         }
       })
     },
     loginSuccess (res) {
-      console.log(res)
+      console.log('loginSuccess' + res)
       this.$router.push({ name: 'dashboard' })
       // 延迟 1 秒显示欢迎信息
       setTimeout(() => {
