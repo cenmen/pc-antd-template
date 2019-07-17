@@ -13,7 +13,6 @@ export default {
    * @returns {*}
    */
   login (parameter) {
-    debugger
     return axios({
       url: '/auth/login',
       method: 'post',
