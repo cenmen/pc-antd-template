@@ -108,7 +108,7 @@ export default {
         font-size: 20px;
         line-height: 28px;
         font-weight: 500;
-        color: rgba(0, 0, 0, 0.85);
+        color: rgba(0, 0, 0, 0.6);
         margin-bottom: 16px;
         flex: auto;
       }

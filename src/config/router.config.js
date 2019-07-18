@@ -259,6 +259,22 @@ export const asyncRouterMap = [
 
       // other
       {
+        path: '/author',
+        component: PageView,
+        meta: { title: '权限管理', icon: 'team', permission: [ 'author' ] },
+        redirect: '/author/permission-list',
+        children: [
+          {
+            path: '/author/permission-list',
+            name: 'PermissionList',
+            component: () => import('@/views/author/PermissionList'),
+            meta: { title: '权限列表', keepAlive: true }
+          }
+        ]
+      },
+
+      // other
+      {
         path: '/other',
         name: 'otherPage',
         component: PageView,

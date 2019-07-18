@@ -12,8 +12,9 @@
             <a-form-item label="状态">
               <a-select placeholder="请选择" default-value="0">
                 <a-select-option value="0">全部</a-select-option>
-                <a-select-option value="1">关闭</a-select-option>
-                <a-select-option value="2">运行中</a-select-option>
+                <a-select-option value="1">禁用</a-select-option>
+                <a-select-option value="2">启用</a-select-option>
+                <a-select-option value="3">黑名单</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -27,8 +28,7 @@
       </a-form>
     </div>
 
-    <s-table :columns="columns" :data="loadData">
-
+    <a-table :columns="columns" :dataSource="loadData">
       <span slot="actions" slot-scope="text, record">
         <a-tag v-for="(action, index) in record.actionList" :key="index">{{ action.describe }}</a-tag>
       </span>
@@ -40,89 +40,38 @@
       <span slot="action" slot-scope="text, record">
         <a @click="handleEdit(record)">编辑</a>
         <a-divider type="vertical" />
-        <a-dropdown>
-          <a class="ant-dropdown-link">
-            更多 <a-icon type="down" />
-          </a>
-          <a-menu slot="overlay">
-            <a-menu-item>
-              <a href="javascript:;">详情</a>
-            </a-menu-item>
-            <a-menu-item>
-              <a href="javascript:;">禁用</a>
-            </a-menu-item>
-            <a-menu-item>
-              <a href="javascript:;">删除</a>
-            </a-menu-item>
-          </a-menu>
-        </a-dropdown>
+        <a @click="handleEdit(record)">编辑</a>
+        <a-divider type="vertical" />
+        <a @click="handleEdit(record)">编辑</a>
       </span>
-    </s-table>
+    </a-table>
 
-    <a-modal
-      title="操作"
-      :width="800"
-      v-model="visible"
-      @ok="handleOk"
-    >
+    <a-modal title="操作" :width="800" v-model="visible" @ok="handleOk">
       <a-form :autoFormCreate="(form)=>{this.form = form}">
 
-        <a-form-item
-          :labelCol="labelCol"
-          :wrapperCol="wrapperCol"
-          label="唯一识别码"
-          hasFeedback
-          validateStatus="success"
-        >
+        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="唯一识别码" hasFeedback validateStatus="success">
           <a-input placeholder="唯一识别码" v-model="mdl.id" id="no" disabled="disabled" />
         </a-form-item>
 
-        <a-form-item
-          :labelCol="labelCol"
-          :wrapperCol="wrapperCol"
-          label="权限名称"
-          hasFeedback
-          validateStatus="success"
-        >
+        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="权限名称" hasFeedback validateStatus="success">
           <a-input placeholder="起一个名字" v-model="mdl.name" id="permission_name" />
         </a-form-item>
 
-        <a-form-item
-          :labelCol="labelCol"
-          :wrapperCol="wrapperCol"
-          label="状态"
-          hasFeedback
-          validateStatus="warning"
-        >
+        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="状态" hasFeedback validateStatus="warning">
           <a-select v-model="mdl.status">
             <a-select-option value="1">正常</a-select-option>
             <a-select-option value="2">禁用</a-select-option>
           </a-select>
         </a-form-item>
 
-        <a-form-item
-          :labelCol="labelCol"
-          :wrapperCol="wrapperCol"
-          label="描述"
-          hasFeedback
-        >
+        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="描述" hasFeedback>
           <a-textarea :rows="5" v-model="mdl.describe" placeholder="..." id="describe"/>
         </a-form-item>
 
         <a-divider />
 
-        <a-form-item
-          :labelCol="labelCol"
-          :wrapperCol="wrapperCol"
-          label="赋予权限"
-          hasFeedback
-        >
-          <a-select
-            style="width: 100%"
-            mode="multiple"
-            v-model="mdl.actions"
-            :allowClear="true"
-          >
+        <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="赋予权限" hasFeedback>
+          <a-select style="width: 100%" mode="multiple" v-model="mdl.actions" :allowClear="true">
             <a-select-option v-for="(action, index) in permissionList" :key="index" :value="action.value">{{ action.label }}</a-select-option>
           </a-select>
         </a-form-item>

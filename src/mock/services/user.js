@@ -16,7 +16,7 @@ const info = (options) => {
       'rolesName': '管理员',
       'rolesId': '1d7da9005',
       'permissions': [{
-        'permissionList': ['dashboard', 'exception', 'result', 'profile'], // 路由页面权限
+        'permissionList': ['dashboard', 'exception', 'result', 'profile', 'table', 'form', 'order', 'permission', 'role', 'user', 'support', 'author'], // 路由页面权限
         'actionEntitySet': [{ // 按钮权限，后面按需配置
           'action': 'add',
           'describe': '新增'
