@@ -32,7 +32,18 @@
       </a-form>
     </div>
 
-    <a-table :columns="columns" :dataSource="loadData" rowKey="id">
+    <a-table
+      :columns="columns"
+      :dataSource="loadData"
+      rowKey="id"
+      :pagination="{
+        current:current,
+        pageSizeOptions:pageSizeOptions,
+        pageSize:pageSize,
+        showTotal:(total)=>`共 ${total} 条`,
+        total: total,
+        showSizeChanger: true }"
+    >
       <span slot="status" slot-scope="text">
         {{ statusMap[text] }}
       </span>
@@ -59,18 +70,19 @@
         </a-form-item>
 
         <a-form-item label="用户名称" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }" :colon="false">
-          <a-input placeholder="请输入用户名称" v-decorator="['name', 
-            { rules: [ { required: true, message: '请输入用户名称' } ] } ]"
+          <a-input
+            placeholder="请输入用户名称"
+            v-decorator="['name',
+                          { rules: [ { required: true, message: '请输入用户名称' } ] } ]"
           />
         </a-form-item>
 
         <a-form-item label="手机号码" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }" :colon="false">
-          <a-input placeholder="请输入手机号码" v-decorator="['telephone', 
-            { 
-              validateFirst: true,
-              rules: [ 
-                { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号码' }, 
-                { required: true, message: '请输入手机号码' } ] } ]"
+          <a-input
+            placeholder="请输入手机号码"
+            v-decorator="['telephone',
+                          {validateFirst: true, rules: [{ pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号码' },{ required: true, message: '请输入手机号码' }]}
+            ]"
           />
         </a-form-item>
 
@@ -107,9 +119,11 @@
 
 <script>
 import permissionApi from '@/api/permission'
+import { list } from '@/mixins/list'
 
 export default {
-  name: 'permissionList',
+  name: 'PermissionList',
+  mixins: [list],
   data () {
     return {
       description: '列表使用场景：后台管理中的权限管理以及角色管理，可用于基于 RBAC 设计的角色权限控制，颗粒度细到每一个操作类型。',
@@ -128,32 +142,32 @@ export default {
           title: '编号',
           key: 'id',
           dataIndex: 'id'
-        },{
+        }, {
           title: '用户名称',
           key: 'name',
           dataIndex: 'name'
-        },{
+        }, {
           title: '手机号码',
           key: 'telephone',
           dataIndex: 'telephone'
-        },{
+        }, {
           title: '账号状态',
           key: 'status',
           dataIndex: 'status',
           scopedSlots: { customRender: 'status' }
-        },{
+        }, {
           title: '操作权限',
           key: 'permissionList',
           width: 500,
           dataIndex: 'permissionList',
           scopedSlots: { customRender: 'permission' }
-        },{
+        }, {
           title: '具体权限',
           key: 'actionEntitySet',
           width: 300,
           dataIndex: 'actionEntitySet',
           scopedSlots: { customRender: 'actions' }
-        },{
+        }, {
           title: '操作',
           key: 'action',
           dataIndex: 'action',
@@ -176,10 +190,10 @@ export default {
   methods: {
     loadPermissionList () {
       permissionApi.getPermissonList().then(response => {
-          this.loadData = response.result
-        }).catch(error => {
-          console.log(error)
-        })
+        this.loadData = response.result
+      }).catch(error => {
+        console.log(error)
+      })
     },
     handleEdit (record) {
       this.visible = true
@@ -190,31 +204,29 @@ export default {
           id: record.id,
           name: record.name,
           telephone: record.telephone,
-          status: record.status,
-        });
-      });
+          status: record.status
+        })
+      })
     },
     submitEdit () {
       this.modForm.validateFields((err, values) => {
-          if (!err) {
-            const permissionList = [...this.alterForm.permissionList].filter(item => [...this.alterForm.removePermission].every(remove => remove !== item))
-            const actionEntitySet = [...this.alterForm.actionEntitySet].filter(item => [...this.alterForm.removeActions].every(remove => remove !== item))
-            values.permissionList = permissionList
-            values.actionEntitySet = actionEntitySet
-            console.log(values)
-            debugger
-              permissionApi.modPermission(params)
-                .then((res) => {
-                    if (res.code === 200) {
-                        this.$message.success(res.message || '修改成功');
-                    } else {
-                        this.$message.error(res.message)
-                    }
-                })
-                .finally(() => {});
-            }
-        });
-
+        if (!err) {
+          const permissionList = [...this.alterForm.permissionList].filter(item => [...this.alterForm.removePermission].every(remove => remove !== item))
+          const actionEntitySet = [...this.alterForm.actionEntitySet].filter(item => [...this.alterForm.removeActions].every(remove => remove !== item))
+          values.permissionList = permissionList
+          values.actionEntitySet = actionEntitySet
+          console.log(values)
+          permissionApi.modPermission(values)
+            .then((res) => {
+              if (res.code === 200) {
+                this.$message.success(res.message || '修改成功')
+              } else {
+                this.$message.error(res.message)
+              }
+            })
+            .finally(() => {})
+        }
+      })
     },
     onChange (selectedRowKeys, selectedRows) {
       this.selectedRowKeys = selectedRowKeys
@@ -222,26 +234,12 @@ export default {
     },
     handleCloseTag (item, str) {
       if (str === 'permission') {
-        // const tags = this.alterForm.permissionList.filter(tag => tag !== item)
         this.alterForm.removePermission.push(item)
       } else if (str === 'actions') {
         this.alterForm.removeActions.push(item)
-      } 
-    }
-  },
-  watch: {
-    /*
-      'selectedRows': function (selectedRows) {
-        this.needTotalList = this.needTotalList.map(item => {
-          return {
-            ...item,
-            total: selectedRows.reduce( (sum, val) => {
-              return sum + val[item.dataIndex]
-            }, 0)
-          }
-        })
       }
-      */
+    }
   }
+  /* 搜索表单及触发事件，重置功能，行选择，查看页面跳转，编辑中的标签需要增加事件 */
 }
 </script>

@@ -3,9 +3,8 @@ import { builder } from '../util'
 
 const info = (options) => {
   console.log('options', options)
-  
   const permissionList = []
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 50; i++) {
     const userInfo = {
       'id': 'B201' + i,
       'name': '天野远子',
