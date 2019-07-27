@@ -4,7 +4,7 @@ export default {
   getPermissonList () {
     return axios({
       url: '/author/permission',
-      method: 'post',
+      method: 'post'
     })
   }
 }

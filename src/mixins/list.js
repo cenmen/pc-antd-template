@@ -8,7 +8,7 @@ export const list = { // 列表页mixins,有表格搜索相关属性和方法
       current: 1,
       pageSize: 10,
       total: 0,
-      pageSizeOptions: ['10', '20', '30', '40', '50', '80', '100']
+      pageSizeOptions: ['10', '30', '50', '80', '100']
     }
   },
 

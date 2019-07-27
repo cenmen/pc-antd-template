@@ -44,10 +44,10 @@
 
       <a-form-item>
         <router-link
-          :to="{ name: 'register', params: { user: 'aaa'} }"
+          :to="{ name: 'register'}"
           class="forge-password"
           style="float: right;"
-        >忘记密码</router-link>
+        >新用户注册</router-link>
       </a-form-item>
 
       <a-form-item style="margin-top:24px">

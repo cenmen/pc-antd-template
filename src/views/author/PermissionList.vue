@@ -1,21 +1,21 @@
 <template>
   <a-card :bordered="false">
     <div class="table-page-search-wrapper">
-      <a-form layout="inline">
+      <a-form :form="searchForm" layout="inline" @submit="onSearch($event,loadPermissionList)">
         <a-row :gutter="48">
           <a-col :md="6" :sm="24">
             <a-form-item label="编号ID">
-              <a-input placeholder="请输入编号ID"/>
+              <a-input placeholder="请输入编号ID" v-decorator="['userId']"/>
             </a-form-item>
           </a-col>
           <a-col :md="6" :sm="24">
             <a-form-item label="手机号码">
-              <a-input placeholder="请输入手机号码"/>
+              <a-input placeholder="请输入手机号码" maxlength="11" v-decorator="['telephone']"/>
             </a-form-item>
           </a-col>
           <a-col :md="6" :sm="24">
             <a-form-item label="账号状态">
-              <a-select placeholder="请选择" default-value="0">
+              <a-select placeholder="请选择" default-value="0" v-decorator="['status']">
                 <a-select-option value="0">全部</a-select-option>
                 <a-select-option value="1">禁用</a-select-option>
                 <a-select-option value="2">启用</a-select-option>
@@ -24,8 +24,8 @@
           </a-col>
           <a-col :md="6" :sm="24">
             <span class="table-page-search-submitButtons">
-              <a-button type="primary">查询</a-button>
-              <a-button style="margin-left: 8px">重置</a-button>
+              <a-button type="primary" htmlType="submit">查询</a-button>
+              <a-button style="margin-left: 8px" @click="resetFieldsAndSelected">重置</a-button>
             </span>
           </a-col>
         </a-row>
@@ -35,7 +35,8 @@
     <a-table
       :columns="columns"
       :dataSource="loadData"
-      rowKey="id"
+      rowKey="userId"
+      @change="onTableChange"
       :pagination="{
         current:current,
         pageSizeOptions:pageSizeOptions,
@@ -53,7 +54,7 @@
       <span slot="actions" slot-scope="record">
         <a-tag v-for="(actions, index) in record" :key="index" style="margin: 5px;">{{ actions }}</a-tag>
       </span>
-      <span slot="action" slot-scope="text, record">
+      <span slot="option" slot-scope="text, record">
         <a @click="handleEdit(record)">查看</a>
         <a-divider type="vertical" />
         <a @click="handleEdit(record)">编辑</a>
@@ -66,7 +67,7 @@
       <a-form :form="modForm">
 
         <a-form-item label="编号ID" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }" :colon="false">
-          <a-input placeholder="请输入编号ID" v-decorator="['id']" disabled/>
+          <a-input placeholder="请输入编号ID" v-decorator="['userId']" disabled/>
         </a-form-item>
 
         <a-form-item label="用户名称" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }" :colon="false">
@@ -98,7 +99,7 @@
         <a-form-item label="操作权限" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" :colon="false">
           <template v-for="(item, index) in alterForm.permissionList">
             <a-tag :key="index" closable :afterClose="() => handleCloseTag(item, 'permission')">
-              {{ index }}
+              {{ item }}
             </a-tag>
           </template>
         </a-form-item>
@@ -106,7 +107,7 @@
         <a-form-item label="具体权限" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" :colon="false">
           <template v-for="(item, index) in alterForm.actionEntitySet">
             <a-tag :key="index" closable :afterClose="() => handleCloseTag(item, 'actions')">
-              {{ index }}
+              {{ item }}
             </a-tag>
           </template>
         </a-form-item>
@@ -140,8 +141,8 @@ export default {
       columns: [
         {
           title: '编号',
-          key: 'id',
-          dataIndex: 'id'
+          key: 'userId',
+          dataIndex: 'userId'
         }, {
           title: '用户名称',
           key: 'name',
@@ -169,9 +170,9 @@ export default {
           scopedSlots: { customRender: 'actions' }
         }, {
           title: '操作',
-          key: 'action',
-          dataIndex: 'action',
-          scopedSlots: { customRender: 'action' }
+          key: 'option',
+          dataIndex: 'option',
+          scopedSlots: { customRender: 'option' }
         }
       ],
       // 权限列表数据
@@ -189,12 +190,39 @@ export default {
   },
   methods: {
     loadPermissionList () {
-      permissionApi.getPermissonList().then(response => {
-        this.loadData = response.result
-      }).catch(error => {
-        console.log(error)
+      const params = this.searchForm.getFieldsValue()
+      params.pageNum = this.current;
+      params.pageSize = this.pageSize;
+      permissionApi.getPermissonList(params).then(response => {
+        if (response.code === 200) {
+          this.loadData = response.result
+          this.total = response.count
+          this.resetSelected()
+        } else {
+          // mock
+          const permissionList = []
+          for (let i = 0; i < 50; i++) {
+            const userInfo = {
+              'userId': 'B201' + i,
+              'name': '天野远子',
+              'status': 1,
+              'telephone': '13420121154',
+              'permissionList': ['dashboard', 'exception', 'result', 'profile', 'table', 'form', 'order', 'permission', 'role', 'user', 'support', 'author'], // 路由页面权限
+              'actionEntitySet': ['add', 'query', 'update', 'delete', 'get']
+            }
+            permissionList.push(userInfo)
+          }
+          this.loadData = permissionList
+          this.$message.error(response.message)
+        }
       })
     },
+    onTableChange(page) {
+      this.current = page.current
+      this.pageSize = page.pageSize
+      this.loadPermissionList()
+    },
+    // 打开编辑框初始化信息
     handleEdit (record) {
       this.visible = true
       this.$nextTick(() => {
@@ -232,6 +260,7 @@ export default {
       this.selectedRowKeys = selectedRowKeys
       this.selectedRows = selectedRows
     },
+    // 编辑框删除标签
     handleCloseTag (item, str) {
       if (str === 'permission') {
         this.alterForm.removePermission.push(item)
@@ -240,6 +269,6 @@ export default {
       }
     }
   }
-  /* 搜索表单及触发事件，重置功能，行选择，查看页面跳转，编辑中的标签需要增加事件 */
+  /* 新增用户，查看详情页面跳转，编辑中的标签需要增加事件 */
 }
 </script>
