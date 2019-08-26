@@ -15,7 +15,7 @@
           </a-col>
           <a-col :md="6" :sm="24">
             <a-form-item label="账号状态">
-              <a-select placeholder="请选择" default-value="0" v-decorator="['status']">
+              <a-select placeholder="请选择" v-decorator="['status']">
                 <a-select-option value="0">全部</a-select-option>
                 <a-select-option value="1">禁用</a-select-option>
                 <a-select-option value="2">启用</a-select-option>
@@ -26,6 +26,7 @@
             <span class="table-page-search-submitButtons">
               <a-button type="primary" htmlType="submit">查询</a-button>
               <a-button style="margin-left: 8px" @click="resetFieldsAndSelected">重置</a-button>
+              <a-button style="margin-left: 8px" type="primary" icon="plus" @click="addPerVisible= true">新增</a-button>
             </span>
           </a-col>
         </a-row>
@@ -59,7 +60,9 @@
         <a-divider type="vertical" />
         <a @click="handleEdit(record)">编辑</a>
         <a-divider type="vertical" />
-        <a @click="handleEdit(record)">删除</a>
+        <a-popconfirm title="Are you sure delete this record?" @confirm="deletePermission(record)" okText="Yes" cancelText="No">
+          <a href="javascript:void(0);">删除</a>
+        </a-popconfirm>
       </span>
     </a-table>
 
@@ -97,23 +100,25 @@
         <a-divider />
 
         <a-form-item label="操作权限" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" :colon="false">
-          <template v-for="(item, index) in alterForm.permissionList">
-            <a-tag :key="index" closable :afterClose="() => handleCloseTag(item, 'permission')">
-              {{ item }}
-            </a-tag>
+          <template>
+            <a-select mode="multiple" v-decorator="['permissionList']" style="width: 100%" placeholder="please select some permission">
+              <a-select-option v-for="(item, index) in alterForm.permissionList" :key="index" :value="item">{{ item }}</a-select-option>
+            </a-select>
           </template>
         </a-form-item>
 
         <a-form-item label="具体权限" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" :colon="false">
-          <template v-for="(item, index) in alterForm.actionEntitySet">
-            <a-tag :key="index" closable :afterClose="() => handleCloseTag(item, 'actions')">
-              {{ item }}
-            </a-tag>
+          <template>
+            <a-select mode="multiple" v-decorator="['actionEntitySet']" style="width: 100%" placeholder="please select some actionEntity">
+              <a-select-option v-for="(item, index) in alterForm.actionEntitySet" :key="index" :value="item">{{ item }}</a-select-option>
+            </a-select>
           </template>
         </a-form-item>
 
       </a-form>
     </a-modal>
+
+    <add-permission :isVisible.sync="addPerVisible"></add-permission>
 
   </a-card>
 </template>
@@ -121,20 +126,25 @@
 <script>
 import permissionApi from '@/api/permission'
 import { list } from '@/mixins/list'
+import addPermission from './components/addPermission'
 
 export default {
   name: 'PermissionList',
   mixins: [list],
+  components: {
+    addPermission
+  },
   data () {
     return {
       description: '列表使用场景：后台管理中的权限管理以及角色管理，可用于基于 RBAC 设计的角色权限控制，颗粒度细到每一个操作类型。',
 
       visible: false,
-      form: null,
+      addPerVisible: false,
+      searchForm: this.$form.createForm(this),
       modForm: this.$form.createForm(this),
       alterForm: {
-        permissionList: [],
-        actionEntitySet: [],
+        permissionList: ['Unremovable1','Unremovable2','Unremovable3','Unremovable4'],
+        actionEntitySet: ['actionEntitySet1','actionEntitySet2','actionEntitySet3','actionEntitySet4'],
         removePermission: [],
         removeActions: []
       },
@@ -229,20 +239,22 @@ export default {
         this.alterForm.permissionList = record.permissionList
         this.alterForm.actionEntitySet = record.actionEntitySet
         this.modForm.setFieldsValue({
-          id: record.id,
+          userId: record.userId,
           name: record.name,
           telephone: record.telephone,
-          status: record.status
+          status: record.status,
+          permissionList: record.permissionList,
+          actionEntitySet: record.actionEntitySet,
         })
       })
+    },
+    // delete a permission
+    deletePermission(record) {
+      this.$message.success(record.userId)
     },
     submitEdit () {
       this.modForm.validateFields((err, values) => {
         if (!err) {
-          const permissionList = [...this.alterForm.permissionList].filter(item => [...this.alterForm.removePermission].every(remove => remove !== item))
-          const actionEntitySet = [...this.alterForm.actionEntitySet].filter(item => [...this.alterForm.removeActions].every(remove => remove !== item))
-          values.permissionList = permissionList
-          values.actionEntitySet = actionEntitySet
           console.log(values)
           permissionApi.modPermission(values)
             .then((res) => {
@@ -252,23 +264,9 @@ export default {
                 this.$message.error(res.message)
               }
             })
-            .finally(() => {})
         }
       })
     },
-    onChange (selectedRowKeys, selectedRows) {
-      this.selectedRowKeys = selectedRowKeys
-      this.selectedRows = selectedRows
-    },
-    // 编辑框删除标签
-    handleCloseTag (item, str) {
-      if (str === 'permission') {
-        this.alterForm.removePermission.push(item)
-      } else if (str === 'actions') {
-        this.alterForm.removeActions.push(item)
-      }
-    }
   }
-  /* 新增用户，查看详情页面跳转，编辑中的标签需要增加事件 */
 }
 </script>
