@@ -66,57 +66,13 @@
       </span>
     </a-table>
 
-    <a-modal title="编辑账号权限" :width="600" v-model="visible" @ok="submitEdit">
-      <a-form :form="modForm">
-
-        <a-form-item label="编号ID" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }" :colon="false">
-          <a-input placeholder="请输入编号ID" v-decorator="['userId']" disabled/>
-        </a-form-item>
-
-        <a-form-item label="用户名称" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }" :colon="false">
-          <a-input
-            placeholder="请输入用户名称"
-            v-decorator="['name',
-                          { rules: [ { required: true, message: '请输入用户名称' } ] } ]"
-          />
-        </a-form-item>
-
-        <a-form-item label="手机号码" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }" :colon="false">
-          <a-input
-            placeholder="请输入手机号码"
-            v-decorator="['telephone',
-                          {validateFirst: true, rules: [{ pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号码' },{ required: true, message: '请输入手机号码' }]}
-            ]"
-          />
-        </a-form-item>
-
-        <a-form-item label="账号状态" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }" :colon="false">
-          <a-select placeholder="请选择账号状态" v-decorator="['status', {rules: [{ required: true, message: '请选择账号状态' }]}]">
-            <a-select-option :value="1">正常</a-select-option>
-            <a-select-option :value="2">禁用</a-select-option>
-          </a-select>
-        </a-form-item>
-
-        <a-divider />
-
-        <a-form-item label="操作权限" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" :colon="false">
-          <template>
-            <a-select mode="multiple" v-decorator="['permissionList']" style="width: 100%" placeholder="please select some permission">
-              <a-select-option v-for="(item, index) in alterForm.permissionList" :key="index" :value="item">{{ item }}</a-select-option>
-            </a-select>
-          </template>
-        </a-form-item>
-
-        <a-form-item label="具体权限" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" :colon="false">
-          <template>
-            <a-select mode="multiple" v-decorator="['actionEntitySet']" style="width: 100%" placeholder="please select some actionEntity">
-              <a-select-option v-for="(item, index) in alterForm.actionEntitySet" :key="index" :value="item">{{ item }}</a-select-option>
-            </a-select>
-          </template>
-        </a-form-item>
-
-      </a-form>
-    </a-modal>
+    <user-panel 
+      :isVisible="userPanelVisible"
+      :record="currentRecord"
+      :permissionCheckList="permissionCheckList"
+      :actionEntityCheckSet="actionEntityCheckSet"
+      @onChangeVisible="onChangeVisible">
+    </user-panel>
 
     <add-permission :isVisible.sync="addPerVisible"></add-permission>
 
@@ -126,22 +82,26 @@
 <script>
 import permissionApi from '@/api/permission'
 import { list } from '@/mixins/list'
-import addPermission from './components/addPermission'
+import addPermission from './components/addPermission' // 新增用户
+import userPanel from './components/userPanel' // 编辑用户
 
 export default {
   name: 'PermissionList',
   mixins: [list],
   components: {
-    addPermission
+    addPermission,
+    userPanel
   },
   data () {
     return {
       description: '列表使用场景：后台管理中的权限管理以及角色管理，可用于基于 RBAC 设计的角色权限控制，颗粒度细到每一个操作类型。',
-
-      visible: false,
-      addPerVisible: false,
+      userPanelVisible: false, // 编辑用户
+      addPerVisible: false, // 新增用户
       searchForm: this.$form.createForm(this),
       modForm: this.$form.createForm(this),
+      currentRecord: {},
+      permissionCheckList: [], //总权限集合
+      actionEntityCheckSet: [], //总子集权限集合
       alterForm: {
         permissionList: ['Unremovable1','Unremovable2','Unremovable3','Unremovable4'],
         actionEntitySet: ['actionEntitySet1','actionEntitySet2','actionEntitySet3','actionEntitySet4'],
@@ -197,33 +157,46 @@ export default {
   },
   created () {
     this.loadPermissionList()
+    this.loadAllPermissionCheckList()
+    this.loadAllActionCheckList()
   },
   methods: {
+    // emit visible
+    onChangeVisible(data) {
+      this[data.key] = data.value
+    },
+    // 加载列表数据
     loadPermissionList () {
       const params = this.searchForm.getFieldsValue()
       params.pageNum = this.current;
       params.pageSize = this.pageSize;
-      permissionApi.getPermissonList(params).then(response => {
-        if (response.code === 200) {
-          this.loadData = response.result
-          this.total = response.count
+      permissionApi.getPermissonList(params).then(res => {
+        if (res.code === 0) {
+          this.loadData = res.result.list
+          this.total = res.result.total
           this.resetSelected()
         } else {
-          // mock
-          const permissionList = []
-          for (let i = 0; i < 50; i++) {
-            const userInfo = {
-              'userId': 'B201' + i,
-              'name': '天野远子',
-              'status': 1,
-              'telephone': '13420121154',
-              'permissionList': ['dashboard', 'exception', 'result', 'profile', 'table', 'form', 'order', 'permission', 'role', 'user', 'support', 'author'], // 路由页面权限
-              'actionEntitySet': ['add', 'query', 'update', 'delete', 'get']
-            }
-            permissionList.push(userInfo)
-          }
-          this.loadData = permissionList
-          this.$message.error(response.message)
+          this.$message.error(res.message)
+        }
+      })
+    },
+    // 加载总路由数据
+    loadAllPermissionCheckList () {
+      permissionApi.getAllPermissonList().then(res => {
+        if (res.code === 0) {
+          this.permissionCheckList = res.result.list
+        } else {
+          this.$message.error(res.message)
+        }
+      })
+    },
+    // 加载总子集数据
+    loadAllActionCheckList () {
+      permissionApi.getAllActionList().then(res => {
+        if (res.code === 0) {
+          this.actionEntityCheckSet = res.result.list
+        } else {
+          this.$message.error(res.message)
         }
       })
     },
@@ -234,36 +207,17 @@ export default {
     },
     // 打开编辑框初始化信息
     handleEdit (record) {
-      this.visible = true
-      this.$nextTick(() => {
-        this.alterForm.permissionList = record.permissionList
-        this.alterForm.actionEntitySet = record.actionEntitySet
-        this.modForm.setFieldsValue({
-          userId: record.userId,
-          name: record.name,
-          telephone: record.telephone,
-          status: record.status,
-          permissionList: record.permissionList,
-          actionEntitySet: record.actionEntitySet,
-        })
-      })
+      this.userPanelVisible = true
+      this.currentRecord = record
     },
     // delete a permission
     deletePermission(record) {
-      this.$message.success(record.userId)
-    },
-    submitEdit () {
-      this.modForm.validateFields((err, values) => {
-        if (!err) {
-          console.log(values)
-          permissionApi.modPermission(values)
-            .then((res) => {
-              if (res.code === 200) {
-                this.$message.success(res.message || '修改成功')
-              } else {
-                this.$message.error(res.message)
-              }
-            })
+      permissionApi.deletePermission().then(res => {
+        if (res.code === 0) {
+          this.$message.success(res.message || '删除成功')
+          // 重新获取列表数据
+        } else {
+          this.$message.error(res.message)
         }
       })
     },
