@@ -5,7 +5,7 @@
         <div class="header">
           <a href="/">
             <img src="~@/assets/logo.svg" class="logo" alt="logo">
-            <span class="title">Ant Design</span>
+            <span class="title">权限管理系统</span>
           </a>
         </div>
         <div class="desc">
@@ -21,7 +21,7 @@
           <a href="_self">条款</a> -->
         </div>
         <div class="copyright">
-          Copyright &copy; 2019 花里胡哨技术组出品
+          Copyright &copy; 2020 花里胡哨技术组出品
         </div>
       </div>
     </div>

@@ -1,17 +1,7 @@
 import { axios } from '@/utils/request'
 
 export default {
-  /**
-   * login func
-   * parameter: {
-   *     username: '',
-   *     password: '',
-   *     remember_me: true,
-   *     captcha: '12345'
-   * }
-   * @param parameter
-   * @returns {*}
-   */
+  // 登录
   login (parameter) {
     return axios({
       url: '/auth/login',
@@ -19,7 +9,7 @@ export default {
       data: parameter
     })
   },
-
+  // 获取用户权限等信息，登录后触发
   getInfo () {
     return axios({
       url: '/user/info',
@@ -29,7 +19,7 @@ export default {
       }
     })
   },
-
+  // 退出
   logout () {
     return axios({
       url: '/auth/logout',

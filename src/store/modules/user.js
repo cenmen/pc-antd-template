@@ -35,7 +35,7 @@ const user = {
       return new Promise((resolve, reject) => {
         loginApi.login(userInfo).then(response => {
           const result = response.result
-          Vue.ls.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
+          Vue.ls.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000) // 设置登录token缓存
           commit('SET_TOKEN', result.token)
           resolve()
         }).catch(error => {
