@@ -4,7 +4,7 @@ export default {
   // 登录
   login (parameter) {
     return axios({
-      url: '/auth/login',
+      url: 'user/login',
       method: 'post',
       data: parameter
     })
