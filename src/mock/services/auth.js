@@ -12,20 +12,6 @@ const login = (options) => {
   }
 
   return builder({
-    'id': Mock.mock('@guid'),
-    'name': Mock.mock('@name'),
-    'username': 'admin',
-    'password': '',
-    'avatar': 'https://gw.alipayobjects.com/zos/rmsportal/jZUIxmJycoymBprLOUbT.png',
-    'status': 1,
-    'telephone': '',
-    'lastLoginIp': '27.154.74.117',
-    'lastLoginTime': 1534837621348,
-    'creatorId': 'admin',
-    'createTime': 1497160610259,
-    'deleted': 0,
-    'roleId': 'admin',
-    'lang': 'zh-CN',
     'token': '4291d7da9005377ec9aec4a71ea837f'
   }, '', 200, { 'Custom-Header': Mock.mock('@guid') })
 }
@@ -34,15 +20,38 @@ const logout = () => {
   return builder({}, '[测试接口] 注销成功')
 }
 
-const smsCaptcha = () => {
-  return builder({ captcha: Mock.mock('@integer(10000, 99999)') })
-}
-
-const twofactor = () => {
-  return builder({ stepCode: Mock.mock('@integer(0, 1)') })
+const info = (options) => {
+  console.log('options', options)
+  const userInfo = {
+    'name': '花里胡哨',
+    'role': {
+      'rolesCode': 10000,
+      'rolesName': '管理员',
+      'rolesId': '1d7da9005',
+      'permissions': [{
+        'permissionList': ['dashboard', 'exception', 'result', 'profile', 'table', 'form', 'order', 'permission', 'role', 'user', 'support', 'author'], // 路由页面权限
+        // 'actionEntitySet': [{ // 按钮权限，后面按需配置
+        //   'action': 'add',
+        //   'describe': '新增'
+        // }, {
+        //   'action': 'query',
+        //   'describe': '查询'
+        // }, {
+        //   'action': 'update',
+        //   'describe': '修改'
+        // }, {
+        //   'action': 'delete',
+        //   'describe': '删除'
+        // }, {
+        //   'action': 'get',
+        //   'describe': '获取'
+        // }]
+      }]
+    }
+  }
+  return builder(userInfo)
 }
 
 Mock.mock(/\/auth\/login/, 'post', login)
+Mock.mock(/\/api\/auth\/info/, 'get', info)
 Mock.mock(/\/auth\/logout/, 'post', logout)
-Mock.mock(/\/account\/sms/, 'post', smsCaptcha)
-Mock.mock(/\/auth\/2step-code/, 'post', twofactor)

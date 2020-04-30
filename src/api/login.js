@@ -4,7 +4,7 @@ export default {
   // 登录
   login (parameter) {
     return axios({
-      url: 'user/login',
+      url: 'auth/login',
       method: 'post',
       data: parameter
     })
@@ -12,7 +12,7 @@ export default {
   // 获取用户权限等信息，登录后触发
   getInfo () {
     return axios({
-      url: '/user/info',
+      url: '/auth/info',
       method: 'get',
       headers: {
         'Content-Type': 'application/json;charset=UTF-8'

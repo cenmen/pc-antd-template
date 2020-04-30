@@ -108,7 +108,8 @@ module.exports = {
     proxy: {
       '/api': {
         // target: 'https://mock.ihx.me/mock/5baf3052f7da7e07e04a5116/antd-pro',
-        target: 'http://127.0.0.1:8000/',
+        // target: 'http://127.0.0.1:8000/',
+        target: 'http://10.0.21.50:8080/',
         changeOrigin: true,
         pathRewrite: {
           '^/api': '',

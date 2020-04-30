@@ -7,10 +7,6 @@ if (process.env.NODE_ENV !== 'production' || process.env.VUE_APP_PREVIEW === 'tr
   console.log('mock mounting')
   require('./services/auth')
   require('./services/user')
-  require('./services/manage')
-  require('./services/other')
-  require('./services/tagCloud')
-  require('./services/article')
   require('./services/permission')
 
   Mock.setup({

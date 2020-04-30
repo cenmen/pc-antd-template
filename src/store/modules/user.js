@@ -66,7 +66,7 @@ const user = {
           }
 
           commit('SET_NAME', { name: result.name })
-          commit('SET_AVATAR', result.avatar)
+          // commit('SET_AVATAR', result.avatar)
 
           resolve(response)
         }).catch(error => {
