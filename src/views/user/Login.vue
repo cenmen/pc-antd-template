@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import md5 from 'md5'
+// import md5 from 'md5'
 import { mapActions } from 'vuex'
 import store from '@/store'
 import { timeFix } from '@/utils/util'
@@ -92,7 +92,7 @@ export default {
         if (!err) {
           const loginParams = {
             username: values.username,
-            password: md5(values.password)
+            password: values.password
           }
           console.log('login form', store.state.user.name)
           this.Login(loginParams)

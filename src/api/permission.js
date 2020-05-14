@@ -1,34 +1,46 @@
 import { axios } from '@/utils/request'
 
 export default {
-  getPermissonList () {
+  List (params) {
     return axios({
-      url: '/author/permission',
-      method: 'post'
+      url: '/permission/list',
+      method: 'post',
+      data: params
+    })
+  },
+  
+  Detail (params) {
+    return axios({
+      url: '/permission/detail',
+      method: 'get',
+      params: params
+    })
+  },
+  
+  // 删除
+  Delete (params) {
+    return axios({
+      url: '/permission/delete',
+      method: 'get',
+      params: params
     })
   },
 
-  // 修改用户权限
-  modPermission () {
+  // 修改
+  Update (params) {
     return axios({
-      url: '/author/updatePermission',
-      method: 'post'
+      url: '/permission/update',
+      method: 'post',
+      data: params
     })
   },
 
-  // 路由总权限
-  getAllPermissonList () {
+  // 新增
+  Insert (params) {
     return axios({
-      url: '/author/allPermission',
-      method: 'post'
-    })
-  },
-
-  // 子集总权限
-  getAllActionList () {
-    return axios({
-      url: '/author/allAction',
-      method: 'post'
+      url: '/permission/insert',
+      method: 'post',
+      data: params
     })
   }
 }

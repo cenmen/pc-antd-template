@@ -2,21 +2,19 @@ import { axios } from '@/utils/request'
 
 export default {
   // 登录
-  login (parameter) {
+  login (params) {
     return axios({
       url: 'auth/login',
       method: 'post',
-      data: parameter
+      data: params
     })
   },
   // 获取用户权限等信息，登录后触发
-  getInfo () {
+  getInfo (params) {
     return axios({
       url: '/auth/info',
-      method: 'get',
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8'
-      }
+      method: 'post',
+      data: params
     })
   },
   // 退出

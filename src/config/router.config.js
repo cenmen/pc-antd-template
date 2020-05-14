@@ -18,13 +18,19 @@ export const asyncRouterMap = [
         name: 'profile',
         component: RouteView,
         redirect: '/profile/basic',
-        meta: { title: '详情页', icon: 'profile', permission: [ 'profile' ] },
+        meta: { title: '详情页', icon: 'profile' },
         children: [
           {
             path: '/profile/basic',
             name: 'ProfileBasic',
-            component: () => import('@/views/profile/basic/Index'),
+            component: () => import('@/views/profile/basic'),
             meta: { title: '基础详情页', permission: [ 'profile' ] }
+          },
+          {
+            path: '/profile/option',
+            name: 'option',
+            component: () => import('@/views/profile/option'),
+            meta: { title: '操作记录', keepAlive: true, permission: [ 'option' ] }
           },
         ]
       },
@@ -51,13 +57,19 @@ export const asyncRouterMap = [
         component: RouteView,
         redirect: '/account/center',
         name: 'account',
-        meta: { title: '个人页', icon: 'user', keepAlive: true, permission: [ 'user' ] },
+        meta: { title: '个人页', icon: 'user', keepAlive: true },
         children: [
           {
             path: '/account/center',
             name: 'center',
-            component: () => import('@/views/account/center/Index'),
-            meta: { title: '个人中心', keepAlive: true, permission: [ 'user' ] }
+            component: () => import('@/views/account/center'),
+            meta: { title: '个人中心', keepAlive: true, permission: [ 'center' ] }
+          },
+          {
+            path: '/account/detail',
+            name: 'detail',
+            component: () => import('@/views/account/detail'),
+            meta: { title: '详细介绍', keepAlive: true, permission: [ 'detail' ] }
           },
         ]
       },
